@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+  <head>
+	<title>Socket.IO chat</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="static/jquery.mobile-1.4.5.min.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+    </style>
+	<script src="static/json2.js"></script>
+	<script src="static/socket.io-1.3.5.js"></script>
+	<script src="static/jquery.min.js"></script>
+	<script src="static/jquery.mobile-1.4.5.min.js"></script>
+	<script src="static/modernizr.custom.21582.js"></script>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+	<form method="post" id="aasForm" name="assForm" action="" target="aasFrame">
+		<input id="m" autocomplete="off" /><input type="button" id="button" value="Send"/>
+		<input type="hidden" name="msg"/>
+		<input type="hidden" name="fromUser"/>
+		<input type="hidden" name="toUser"/>
+	</form>
+	<iframe name="aasFrame" width="0" height="0"></iframe>
+  </body>
+</html>
+<script>
+	if (!('console' in window)) {
+		window.console = {
+			info: function() {},
+			error: function() {},
+			trace: function() {}
+		};
+	}
+	var params = {};
+	function initParam() {
+		if (location.search.indexOf('?') != -1) {
+			var str = location.search.substring(1);
+			var arr = str.split('&');
+			for (var i = 0; i < arr.length; ++i) {
+				var item = arr[i].split('=');
+				params[item[0]] = decodeURIComponent(item[1]);
+			}
+		}
+	}
+	initParam();
+	var queryObj = {userid: new Date().getTime()};
+	if (params['mydomain'] !== void 0)
+		document.forms["aasForm"].action = params['mydomain'] + 'main/pop/pop.jsp';
+	if (params['userid'] !== void 0)
+		$.extend(queryObj, {userid: params['userid']});
+	var socket = io({query: queryObj});
+	var cbs = [];
+	function register(callback) {
+		if (typeof callback === 'function')
+			cbs.push(callback);
+	}
+	
+	$('#button').click(function(){
+		socket.emit('chat message', {msg: $('#m').val()});
+		$('#m').val('');
+		return false;
+	});
+	socket.on('chat message', function(msgObj){
+		$('#messages').append($('<li>').text(msgObj.msg));
+		//alert(params['mydomain'] + '$' + msgObj.msg);
+		if (params['mydomain']) {
+			document.forms["aasForm"].msg.value = msgObj.msg;
+			document.forms["aasForm"].fromUser.value = msgObj.fromUser;
+			document.forms["aasForm"].toUser.value = msgObj.toUser;
+			document.forms["aasForm"].submit();
+		}
+		$(cbs).each(function(idx, cb) {
+			cb.call(this, msgObj);
+		});
+		
+	});
+</script>

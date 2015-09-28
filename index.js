@@ -47,10 +47,10 @@ app.all('/clean', function(req, res) {
 	//console.dir(io.sockets);
 	userid = {}
 	_.each(io.sockets.sockets, function(socket, index) {
-		var userid = socket.handshake.query.userid;
-		if (userid) {
-			userid[userid] = userid[userid] || [];
-			userid[userid].push(socket);
+		var uid = socket.handshake.query.userid;
+		if (uid) {
+			userid[uid] = userid[uid] || [];
+			userid[uid].push(socket);
 		}
 	});
 	res.end();

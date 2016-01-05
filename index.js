@@ -15,10 +15,6 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 app.use('/static', express.static(__dirname + '/public'));
 app.use('/static/js', express.static('./public/javascripts'));
 app.use('/static/css', express.static('./public/stylesheets'));
-app.get('/example', function(req, res) {
-	var out = {};
-	res.render('index', out);
-});
 app.all('/send', function(req, res) {
 	//console.log(req.body);
 	var msg = req.param('msg'),
@@ -69,7 +65,8 @@ app.all('/clean', function(req, res) {
 
 app.get('/', function(req, res) {
   // res.send('<h1>Hello world</h1>');
-  res.sendFile(__dirname + '/index.html');
+  // res.sendFile(__dirname + '/index.html');
+  res.render('index');
 });
 
 io.on('connection', function(socket) {

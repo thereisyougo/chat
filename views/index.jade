@@ -1,0 +1,24 @@
+mixin hid(name)
+	input(type="hidden", name=name)&attributes(attributes)
+doctype html
+html
+	head
+		title Socket.IO chat
+		meta(name="viewport", encoding="utf-8", content="width=device-width, initial-scale=1")
+		link(rel="stylesheet", type="text/css", href="static/css/jquery.mobile-1.4.5.min.css")
+		link(rel="stylesheet", type="text/css", href="static/css/head.css")
+		script(src="static/js/json2.js")
+		script(src="socket.io/socket.io.js")
+		script(src="static/js/jquery.min.js")
+		script(src="static/js/jquery.mobile-1.4.5.min.js")
+		script(src="static/js/modernizr.custom.21582.js")
+	body
+		ul#messages
+		form#aasForm(method="post", name="aasForm", target="aasFrame")
+			input#m(autocomplete="off")/
+			input#button(type="button", value="Send")/
+			+hid("msg")
+			+hid("fromUser")
+			+hid("toUser")
+		iframe(name="aasFrame", width=0, height=0)
+script(src="static/js/chat.js")

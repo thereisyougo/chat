@@ -6,12 +6,19 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var _ = require('underscore');
 var userid = {};
-
+app.set('views', './views');
+app.set('view engine', 'jade');
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 //app.use(multer()); // for parsing multipart/form-data
 
 app.use('/static', express.static(__dirname + '/public'));
+app.use('/static/js', express.static('./public/javascripts'));
+app.use('/static/css', express.static('./public/stylesheets'));
+app.get('/example', function(req, res) {
+	var out = {};
+	res.render('index', out);
+});
 app.all('/send', function(req, res) {
 	//console.log(req.body);
 	var msg = req.param('msg'),
@@ -33,8 +40,12 @@ app.all('/send', function(req, res) {
 });
 app.all('/disconnect', function(req, res) {
 	var user = req.param('user');
-	if (user)
-		userid = _.omit(userid, user);
+	try {
+		if (user)
+			userid = _.omit(userid, user);
+	} catch (e) {
+		console.error(e.message);
+	}
 	res.end();
 });
 
@@ -80,4 +91,9 @@ io.on('connection', function(socket) {
 
 http.listen(3000, function(){
   console.log('listening on *:3000');
-})
+});
+
+process.on('uncaughtException', function (err) {
+  console.log(err);
+  console.log(err.stack);
+});

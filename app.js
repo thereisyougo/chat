@@ -5,6 +5,7 @@ var multer = require('multer');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var _ = require('underscore');
+var amqp = require('amqplib/callback_api');
 var userid = {};
 app.set('views', './views');
 app.set('view engine', 'jade');
@@ -88,6 +89,23 @@ io.on('connection', function(socket) {
 
 http.listen(3000, function(){
   console.log('listening on *:3000');
+});
+
+amqp.connect('amqp://mq', function(err, conn) {
+	conn.createChannel(function(err, ch) {
+		var q = 'task_queue';
+		ch.assertQueue(q, { durable: true });
+		ch.prefetch(1);
+		console.log(" [*] Waiting for messages in %s.", q);
+		ch.consume(q, function(msg) {
+			var secs = msg.content.toString().split('.').length = 1;
+			console.log(" [x] Received %s", msg.content.toString());
+			setTimeout(function() {
+				console.log(" [x] Done");
+				ch.ack(msg);
+			}, secs * 500);
+		}, { noAck: false });
+	});
 });
 
 process.on('uncaughtException', function (err) {

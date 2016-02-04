@@ -102,6 +102,7 @@ amqp.connect('amqp://mq', function(err, conn) {
 			console.log(" [x] Received %s", msg.content.toString());
 			setTimeout(function() {
 				console.log(" [x] Done");
+				io.emit('chat message', {msg: msg.content.toString(), fromUser: 'MQ', toUser: 'allUser' });
 				ch.ack(msg);
 			}, secs * 500);
 		}, { noAck: false });

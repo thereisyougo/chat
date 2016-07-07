@@ -91,6 +91,12 @@ http.listen(3000, function(){
   console.log('listening on *:3000');
 });
 
+process.on('uncaughtException', function (err) {
+  console.log(err);
+  console.log(err.stack);
+});
+
+// 如果没有用到RABBIT MQ，可以注释掉
 amqp.connect('amqp://mq', function(err, conn) {
 	conn.createChannel(function(err, ch) {
 		var q = 'task_queue';
@@ -109,7 +115,4 @@ amqp.connect('amqp://mq', function(err, conn) {
 	});
 });
 
-process.on('uncaughtException', function (err) {
-  console.log(err);
-  console.log(err.stack);
-});
+
